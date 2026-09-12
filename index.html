@@ -1,31 +1,352 @@
-<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kompnax Çat Saytı</title>
+    <title>KompNax - Kompüter və Kamera Servisi</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 150px; background-color: #f4f4f9; }
-        h1 { color: #333; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; scroll-behavior: smooth; }
+        body { background-color: #f4f7f6; color: #333; transition: 0.3s; }
+        
+        header { background: #2c3e50; padding: 15px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+        .logo { color: white; font-weight: bold; font-size: 18px; }
+        
+        .nav-links { list-style: none; display: flex; gap: 10px; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; font-size: 12px; }
+        
+        .controls { display: flex; gap: 6px; align-items: center; }
+        #lang-select { padding: 4px 6px; background: #3498db; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; }
+        #theme-btn { padding: 5px 8px; background: #3498db; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; }
+        .menu-toggle { display: none; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+        @media(max-width: 900px) {
+            .menu-toggle { display: block; }
+            .nav-links { 
+                position: absolute; top: 100%; left: 0; width: 100%; background: #2c3e50; 
+                flex-direction: column; align-items: center; max-height: 0; overflow: hidden; 
+                transition: max-height 0.3s ease-in-out; padding: 0;
+            }
+            .nav-links.active { max-height: 500px; padding: 15px 0; }
+            .nav-links li { margin: 6px 0; }
+        }
+
+        .hero-banner { background: #0f172a; padding: 25px 15px; text-align: center; border-bottom: 2px solid #3498db; }
+        .blinking-title { color: #f1c40f; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
+        
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 12px; color: #fff; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.open { background-color: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+        .status-dot.closed { background-color: #e74c3c; box-shadow: 0 0 8px #e74c3c; }
+
+        section { max-width: 1100px; margin: 30px auto; padding: 0 15px; text-align: center; }
+        h2 { margin-bottom: 20px; color: #2c3e50; font-size: 20px; border-bottom: 3px solid #3498db; display: inline-block; padding-bottom: 5px; }
+
+        .speedtest-container { background: #0f172a; padding: 10px; border-radius: 15px; max-width: 650px; margin: 0 auto; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        .card h3 { font-size: 16px; margin: 10px 0 5px; color: #2c3e50; }
+        .card p { font-size: 13px; color: #666; }
+
+        .track-container, .warranty-container, .quiz-container, .calculator-container, .order-form-container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; text-align: left; }
+        .track-result, .warranty-result, .quiz-result { margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; border-left: 4px solid #3498db; display: none; }
+
+        .calc-result-box { background: #e8f4fd; padding: 12px; border-radius: 8px; margin-top: 15px; text-align: center; font-size: 15px; color: #2c3e50; border: 1px dashed #3498db; }
+        .calc-result-box span { font-weight: bold; color: #27ae60; font-size: 18px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; cursor: pointer; }
+        .checkbox-group input { width: 16px; height: 16px; cursor: pointer; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 13px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; transition: 0.3s; }
+        .form-group input.error-input { border-color: #e74c3c !important; }
+
+        .submit-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .testimonials-slider { display: flex; overflow-x: auto; gap: 15px; scroll-snap-type: x mandatory; padding-bottom: 10px; max-width: 700px; margin: 0 auto; }
+        .testimonial-card { min-width: 280px; flex: 1; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; text-align: left; }
+        .testimonial-card p { font-style: italic; font-size: 13px; color: #555; margin-bottom: 10px; }
+        .testimonial-card h4 { font-size: 14px; color: #2c3e50; }
+        .stars { color: #f1c40f; font-size: 14px; margin-bottom: 5px; }
+
+        .faq-container { text-align: left; max-width: 750px; margin: 0 auto; }
+        .faq-item { background: #fff; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+        .faq-question { padding: 12px 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff; border: none; width: 100%; text-align: left; font-size: 14px; color: #2c3e50; }
+        .faq-answer { max-height: 0; overflow: hidden; padding: 0 15px; color: #666; font-size: 13px; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .faq-item.active .faq-answer { max-height: 120px; padding: 0 15px 12px; }
+
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 15px; }
+        .contact-card { background: #fff; padding: 15px; border-radius: 10px; text-decoration: none; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .contact-card span { display: block; font-size: 11px; color: #777; font-weight: normal; }
+
+        body.dark-mode { background-color: #0b0f19; color: #f1f5f9; }
+        body.dark-mode header, body.dark-mode .nav-links { background: #0f172a; }
+        body.dark-mode h2 { color: #f1f5f9; }
+        body.dark-mode .card, body.dark-mode .contact-card, body.dark-mode .faq-item, body.dark-mode .faq-question, body.dark-mode .order-form-container, body.dark-mode .calculator-container, body.dark-mode .track-container, body.dark-mode .warranty-container, body.dark-mode .quiz-container, body.dark-mode .testimonial-card { background: #1e293b; color: #f1f5f9; }
+        body.dark-mode .faq-answer, body.dark-mode .card p, body.dark-mode .testimonial-card p { color: #94a3b8; background: #0f172a; }
+        body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        body.dark-mode .calc-result-box, body.dark-mode .track-result, body.dark-mode .warranty-result, body.dark-mode .quiz-result { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        body.dark-mode .contact-card span { color: #94a3b8; }
+
+        .float-container { position: fixed; bottom: 15px; right: 15px; z-index: 100; display: flex; align-items: center; gap: 8px; }
+        .wa-tooltip { background: #fff; color: #333; padding: 5px 10px; border-radius: 15px; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: bold; }
+        body.dark-mode .wa-tooltip { background: #1e293b; color: #fff; }
+        .float-wa { width: 48px; height: 48px; background-color: #25d366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        footer { background: #0f172a; color: white; text-align: center; padding: 20px; margin-top: 40px; font-size: 13px; }
     </style>
 </head>
 <body>
-    <h1>Xoş gəlmisiniz!</h1>
-    <p>Saytımız hazırdır. Aşağı sağ küncdən bizə yaza bilərsiniz.</p>
 
-    <!--Start of Tawk.to Script-->
-    <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/6aa5662657bdd83448ee371a/default';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-    </script>
-    <!--End of Tawk.to Script-->
+    <header>
+        <div class="navbar">
+            <div class="logo">KompNax</div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#speedtest" data-key="nav_speedtest">Sürət</a></li>
+                <li><a href="#services" data-key="nav_services">Xidmətlər</a></li>
+                <li><a href="#quiz" data-key="nav_quiz">Diaqnoz</a></li>
+                <li><a href="#track" data-key="nav_track">Cihazım</a></li>
+                <li><a href="#warranty" data-key="nav_warranty">Zəmanət</a></li>
+                <li><a href="#calculator" data-key="nav_calc">Hesabla</a></li>
+                <li><a href="#testimonials" data-key="nav_reviews">Rəylər</a></li>
+                <li><a href="#order" data-key="nav_order">Sifariş</a></li>
+                <li><a href="#contact" data-key="nav_contact">Əlaqə</a></li>
+            </ul>
+            <div class="controls">
+                <select id="lang-select">
+                    <option value="az">AZ</option>
+                    <option value="ru">RU</option>
+                    <option value="en">EN</option>
+                </select>
+                <button id="theme-btn">🌙</button>
+                <button class="menu-toggle" id="menu-toggle">☰</button>
+            </div>
+        </div>
+    </header>
 
-</body>
-</html>
+    <div class="hero-banner">
+        <h1 class="blinking-title" data-key="banner_text">NAXÇIVAN MUXTAR RESPUBLİKASI</h1>
+        <div class="status-badge">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Yoxlanılır...</span>
+        </div>
+    </div>
+
+    <section id="speedtest">
+        <h2 data-key="sec_speedtest">İnternet Sürət Testi</h2>
+        <div class="speedtest-container">
+            <iframe src="https://openspeedtest.com/Get-widget.php" width="100%" height="350px" style="border:none; border-radius: 8px;" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <section id="services">
+        <h2 data-key="sec_services">Xidmətlərimiz</h2>
+        <div class="grid">
+            <div class="card">
+                <h3 data-key="service1_title">Kompüter təmiri və servisi</h3>
+                <p data-key="service1_desc">Masaüstü və noutbukların proqram, təchizat təmiri və profilaktikası.</p>
+            </div>
+            <div class="card">
+                <h3 data-key="service2_title">IP Wi-Fi kameraların quraşdırılması</h3>
+                <p data-key="service2_desc">Təhlükəsizlik kameralarının çəkilişi, sistemlərin qurulması və telefona qoşulması.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="quiz">
+        <h2 data-key="sec_quiz">Problem Diaqnostik Köməkçisi</h2>
+        <div class="quiz-container">
+            <div class="form-group">
+                <label for="quiz-select" data-key="quiz_label">Kompüterinizdə hansı problem baş verir?</label>
+                <select id="quiz-select">
+                    <option value="" data-key="quiz_opt_default">Seçin...</option>
+                    <option value="hot" data-key="quiz_opt1">Həddindən artıq qızır və səs edir</option>
+                    <option value="slow" data-key="quiz_opt2">Çox yavaş işləyir və donur</option>
+                    <option value="boot" data-key="quiz_opt3">Ümumiyyətlə açılmır / Ekran gəlmir</option>
+                </select>
+            </div>
+            <button type="button" id="quiz-btn" class="submit-btn" style="background:#e67e22;" data-key="quiz_btn">Problemi Təxmin Et</button>
+            <div id="quiz-result" class="quiz-result"></div>
+        </div>
+    </section>
+
+    <section id="track">
+        <h2 data-key="sec_track">Cihazım Hardadır? (Status Yoxla)</h2>
+        <div class="track-container">
+            <div class="form-group">
+                <label for="track-code" data-key="track_label">Təhvil kodunu daxil edin (Məsələn: NX102):</label>
+                <input type="text" id="track-code" placeholder="Məsələn: NX102">
+            </div>
+            <button type="button" id="track-btn" class="submit-btn" style="background:#3498db;" data-key="track_btn">Statusu Yoxla</button>
+            <div id="track-result" class="track-result"></div>
+        </div>
+    </section>
+
+    <section id="warranty">
+        <h2 data-key="sec_warranty">Zəmanət Müddətini Yoxla</h2>
+        <div class="warranty-container">
+            <div class="form-group">
+                <label for="warranty-code" data-key="warranty_label">Zəmanət Talon Kodunu daxil edin:</label>
+                <input type="text" id="warranty-code" placeholder="Məsələn: ZAM-501">
+            </div>
+            <button type="button" id="warranty-btn" class="submit-btn" style="background:#8e44ad;" data-key="warranty_btn">Zəmanəti Yoxla</button>
+            <div id="warranty-result" class="warranty-result"></div>
+        </div>
+    </section>
+
+    <section id="calculator">
+        <h2 data-key="sec_calc">Xidmət Qiyməti və Ünvan Hesabla</h2>
+        <div class="calculator-container">
+            <div class="form-group">
+                <label for="calc-service" data-key="calc_service_label">Xidmət növünü seçin:</label>
+                <select id="calc-service">
+                    <option value="20" data-key="calc_opt1">Windows Format və Proqramlar (20 AZN)</option>
+                    <option value="30" data-key="calc_opt2">Noutbuk Təmizlənməsi / Termopasta (30 AZN)</option>
+                    <option value="15" data-key="calc_opt3">1 ədəd IP Wi-Fi Kamera Quraşdırılması (15 AZN)</option>
+                    <option value="40" data-key="calc_opt4">Ana Plata / Detal Təmiri diaqnostika (40 AZN)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="calc-device" data-key="calc_device_label">Cihaz növü:</label>
+                <select id="calc-device">
+                    <option value="0" data-key="calc_dev1">Masaüstü Kompüter (Desktop)</option>
+                    <option value="10" data-key="calc_dev2">Noutbuk / Laptop (+10 AZN)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="calc-location" data-key="calc_loc_label">Xidmət Ünvanı (Naxçıvan MR):</label>
+                <select id="calc-location">
+                    <option value="0">Servisə özüm gətirəcəyəm (0 AZN)</option>
+                    <option value="5">Naxçıvan şəhər daxili ünvana gəliş (+5 AZN)</option>
+                    <option value="10">Babək rayonu / kəndləri (+10 AZN)</option>
+                    <option value="15">Şərur rayonu / kəndləri (+15 AZN)</option>
+                    <option value="15">Culfa rayonu / kəndləri (+15 AZN)</option>
+                    <option value="20">Ordubad rayonu / kəndləri (+20 AZN)</option>
+                    <option value="15">Sədərək rayonu / kəndləri (+15 AZN)</option>
+                    <option value="15">Şahbuz rayonu / kəndləri (+15 AZN)</option>
+                    <option value="15">Kəngərli rayonu / kəndləri (+15 AZN)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-express"> <span data-key="calc_express">Təcili xidmət (1 saat ərzində +10 AZN)</span>
+                </label>
+            </div>
+            <div class="calc-result-box">
+                <span data-key="calc_total_text">Təxmini Qiymət:</span> <span id="total-price">20</span> AZN
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials">
+        <h2 data-key="sec_reviews">Müştəri Rəyləri</h2>
+        <div class="testimonials-slider">
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p data-key="review1">"Noutbukum həddindən artıq qızır və səs edirdi. Çox qısa müddətdə təmizlədilər, indi saat kimi işləyir. Təşəkkürlər!"</p>
+                <h4 data-key="review1_author">- Elvin Məmmədov (Naxçıvan ş.)</h4>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p data-key="review2">"Obyektimiz üçün təhlükəsizlik kameraları quraşdırdılar. İşlərini çox səliqəli və peşəkar görürlər."</p>
+                <h4 data-key="review2_author">- Anar Həsənov (Babək r.)</h4>
+            </div>
+        </div>
+    </section>
+
+    <section id="order">
+        <h2 data-key="sec_order">Onlayn Sifariş Et</h2>
+        <div class="order-form-container">
+            <form id="whatsapp-order-form">
+                <div class="form-group">
+                    <label for="client-name" data-key="form_name">Adınız:</label>
+                    <input type="text" id="client-name" data-key-placeholder="form_placeholder_name" placeholder="Adınızı daxil edin">
+                </div>
+                <div class="form-group">
+                    <label for="client-service" data-key="form_service">Xidmət Növü:</label>
+                    <select id="client-service">
+                        <option value="Kompüter təmiri və servisi" data-key="opt1">Kompüter təmiri və servisi</option>
+                        <option value="IP Wi-Fi kamera quraşdırılması" data-key="opt2">IP Wi-Fi kamera quraşdırılması</option>
+                        <option value="Digər proqram/aparat xidməti" data-key="opt3">Digər xidmət</option>
+                    </select>
+                </div>
+                < class="form-group">
+                    <label for="client-time" data-key="form_time">İstədiyiniz Vaxt / Randevu:</label>
+                    <select id="client-time">
+                        <option value="Tezliklə / İndi" data-key="time_opt1">Tezliklə / İndi</option>
+                        <option value="Bu gün - Günorta saatlarında" data-key="time_opt2">Bu gün - Günorta saatlarında</option>
+                        <option value="Bu gün - Axşam saatlarında" data-key="time_opt3">Bu gün - Axşam saatlarında</option>
+                        <option value="Sabah" data-key="time_opt4">Sabah</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="client-note" data-key="form_note">Əlavə Qeyd / Problem:</label>
+                    <textarea id="client-note" rows="3" data-key-placeholder="form_placeholder_note" placeholder="Problem barədə qısaca yazın..."></textarea>
+                </div>
+                <button type="button" id="whatsapp-submit-btn" class="submit-btn">
+                    💬 <span data-key="form_btn">WhatsApp ilə Göndər</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section id="faq">
+        <h2 data-key="sec_faq">Tez-tez Verilən Suallar</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question"><span data-key="faq_q1">Yerində xidmət mövcuddurmu?</span> <span>▼</span></button>
+                <div class="faq-answer" data-key="faq_a1">Bəzi xidmətlər üzrə evə və ya iş yerinə gəlməklə baxış keçirilir. Ətraflı məlumat üçün əlaqə saxlayın.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question"><span data-key="faq_q2">Gördüyünüz işlərə zəmanət verilirmi?</span> <span>▼</span></button>
+<button class="faq-question"><span data-key="faq_q2">Gördüyünüz işlərə zəmanət verilirmi?</span> <span>▼</span></button>
+                <div class="faq-answer" data-key="faq_a2">Bəli, yerinə yetirdiyimiz bütün aparat və proqram təminatı işlərinə zəmanət təqdim olunur.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 data-key="sec_contact">Bizimlə Əlaqə</h2>
+        <div class="contact-grid">
+            <a href="https://wa.me/994555597935" target="_blank" class="contact-card">
+                <span>💬</span> WhatsApp <span>+994 55 559 79 35</span>
+            </a>
+            <a href="mailto:cavidnaxcivanli026@gmail.com" class="contact-card">
+                <span>📧</span> <span data-key="contact_email">Email</span> <span>cavidnaxcivanli026@gmail.com</span>
+            </a>
+            <a href="https://www.instagram.com/_shahmamedoff/" target="_blank" class="contact-card">
+                <span>📸</span> <span data-key="contact_ig">Instagram</span> <span>@_shahmamedoff</span>
+            </a>
+            <a href="https://www.tiktok.com/@_shahmamedoff" target="_blank" class="contact-card">
+                <span>🎵</span> <span data-key="contact_tt">TikTok</span> <span>@_shahmamedoff</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="float-container">
+        <div class="wa-tooltip" data-key="float_tooltip">Onlayn dəstək aktivdir! 💬</div>
+        <a href="https://wa.me/994555597935" class="float-wa" target="_blank" style="font-size: 24px; text-decoration: none;">💬</a>
+    </div>
+
+    <footer>
+        <p data-key="footer_text">© 2026 KompNax. Bütün hüquqlar qorunur.</p>
+    </footer>
+        <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        function checkWorkingHours() {
+            const now = new Date();
+            const hour = now.getHours();
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            
+            if (hour >= 9 && hour < 20) {
+                dot.className = "status-dot open";
+                text.innerText = "Açıqdır - Sifariş qəbul olunur";
+            } else {
+                
